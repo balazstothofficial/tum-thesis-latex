@@ -1,90 +1,16 @@
-% !TeX root = ../main.tex
-% Add the above to each chapter to make compiling the PDF easier in some editors.
-
 \chapter{Introduction}\label{chapter:introduction}
 
-\section{Section}
-Citation test~\parencite{latex}.
+% Citation test~\parencite{latex}.
 
-\subsection{Subsection}
-
-See~\autoref{tab:sample}, \autoref{fig:sample-drawing}, \autoref{fig:sample-plot}, \autoref{fig:sample-listing}.
-
-\begin{table}[htpb]
-  \caption[Example table]{An example for a simple table.}\label{tab:sample}
-  \centering
-  \begin{tabular}{l l l l}
-    \toprule
-      A & B & C & D \\
-    \midrule
-      1 & 2 & 1 & 2 \\
-      2 & 3 & 2 & 3 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+Functional lists (\autoref{fig:example-list}) are a handy and easy-to-use data structure in functional programming. However, compared to imperative arrays, |lookup| and |update| operations on lists have a significantly worse runtime of $\mathcal{O}(n)$ instead of $\mathcal{O}(1)$. 
 
 \begin{figure}[htpb]
-  \centering
-  % This should probably go into a file in figures/
-  \begin{tikzpicture}[node distance=3cm]
-    \node (R0) {$R_1$};
-    \node (R1) [right of=R0] {$R_2$};
-    \node (R2) [below of=R1] {$R_4$};
-    \node (R3) [below of=R0] {$R_3$};
-    \node (R4) [right of=R1] {$R_5$};
-
-    \path[every node]
-      (R0) edge (R1)
-      (R0) edge (R3)
-      (R3) edge (R2)
-      (R2) edge (R1)
-      (R1) edge (R4);
-  \end{tikzpicture}
-  \caption[Example drawing]{An example for a simple drawing.}\label{fig:sample-drawing}
+\includegraphics[trim={0 22,2cm 0 2,3cm},clip, width=1.00\textwidth]{figures/Theory_Intro.pdf}
+\caption[Example functional list implementation]{An example implementation of a functional list.}\label{fig:example-list}
 \end{figure}
 
-\begin{figure}[htpb]
-  \centering
-
-  \pgfplotstableset{col sep=&, row sep=\\}
-  % This should probably go into a file in data/
-  \pgfplotstableread{
-    a & b    \\
-    1 & 1000 \\
-    2 & 1500 \\
-    3 & 1600 \\
-  }\exampleA
-  \pgfplotstableread{
-    a & b    \\
-    1 & 1200 \\
-    2 & 800 \\
-    3 & 1400 \\
-  }\exampleB
-  % This should probably go into a file in figures/
-  \begin{tikzpicture}
-    \begin{axis}[
-        ymin=0,
-        legend style={legend pos=south east},
-        grid,
-        thick,
-        ylabel=Y,
-        xlabel=X
-      ]
-      \addplot table[x=a, y=b]{\exampleA};
-      \addlegendentry{Example A};
-      \addplot table[x=a, y=b]{\exampleB};
-      \addlegendentry{Example B};
-    \end{axis}
-  \end{tikzpicture}
-  \caption[Example plot]{An example for a simple plot.}\label{fig:sample-plot}
-\end{figure}
-
-\begin{figure}[htpb]
-  \centering
-  \begin{tabular}{c}
-  \begin{lstlisting}[language=SQL]
-    SELECT * FROM tbl WHERE tbl.str = "str"
-  \end{lstlisting}
-  \end{tabular}
-  \caption[Example listing]{An example for a source code listing.}\label{fig:sample-listing}
-\end{figure}
+\noindent Then why not replace lists with arrays at compile time? Like that, the functional language's methodological benefits could be preserved, and also the runtime of imperative arrays. In section X, we will apply this simple method. The problem with the method is that arrays are ephemeral, meaning that updates are destructive, like for most imperative data structures (Okasaki, 2). Contrary to imperative languages, all data structures are automatically persistent in functional languages (Okasaki, 2).
+If we use a list in a non-linear way, we would need to copy the corresponding array, which is costly in terms of runtime and memory. \\
+To cope with that, we use diff arrays or trailer arrays (Bloss 1989 + link section X), which store their updates in a tree-like structure next to the array (Kumar 2017 706). 
+With them, we can have lookup and update operations in $\mathcal{O}(1)$ for the most recent version of the data structure. \\
+This thesis aims to automatically convert functional programs using lists to imperative ones using (diff) arrays. Additionally, we will automatically create equivalence proofs to ensure that the two versions of the program are doing the same. We use the Isabelle/HOL theorem prover (link section) for this purpose. We can reason about imperative programs using the Imperative/HOL framework (link section) in Isabelle and a separation logic (link section) built on top of it. Using this setup, we implemented an infrastructure to parallelly translate the functional programs to imperative ones and create equivalence proofs (link section).

@@ -23,13 +23,15 @@
 \usepackage{pgfplotstable}
 \usepackage{booktabs}
 \usepackage[final]{microtype}
-\usepackage{caption}
+\usepackage[font=small]{caption}
 \usepackage[hidelinks]{hyperref} % hidelinks removes colored boxes around references and links
+\usepackage{minted}
+\usepackage{setspace}
 
 \bibliography{bibliography}
 
 \setkomafont{disposition}{\normalfont\bfseries} % use serif font for headings
-\linespread{1.05} % adjust line spread for mathpazo font
+\linespread{1.5} % adjust line spread for mathpazo font
 
 % Add table of contents to PDF bookmarks
 \BeforeTOCHead[toc]{{\cleardoublepage\pdfbookmark[0]{\contentsname}{toc}}}
@@ -65,3 +67,5 @@
   keywordstyle=\bfseries\color{TUMBlue},
   stringstyle=\color{TUMAccentGreen}
 }
+
+\lstMakeShortInline[columns=fixed]|
