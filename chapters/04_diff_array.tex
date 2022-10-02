@@ -1,6 +1,6 @@
 \chapter{Verified Diff Array Implementation}\label{chapter:diff-array}
  
-TODO 
+In the following, we will implement and verify diff arrays using Imperative/HOL (\autoref{section:imperative_hol}) and separation logic (\autoref{section:separation-logic-hol}) facilities.
  
 \section{Cell}
 
@@ -33,7 +33,7 @@ As an abstract representation of |cell|, we implement |cell|' (\autoref{fig:cell
 
 \section{Diff Array Relation}
 
-We solve this issue by having references of all |cell|s of a diff array and their corresponding |cell|'s in a list. Using this list, which we will mostly call |t|, we can assert the structure of the diff arrays using a pure assertion, meaning simple boolean logic. We create the relation (\autoref{fig:diff_arr_rel'}) by recursing on the number of stored updates before reaching the actual array.
+We solve this issue by having references of all |cell|s of a diff array, and their corresponding |cell|'s in a list. Using this list, which we will mostly call |t|, we can assert the structure of the diff arrays using a pure assertion, meaning standard boolean logic. We create the relation (\autoref{fig:diff_arr_rel'}) by recursing on the number of stored updates before reaching the actual array.
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 22,4cm 0 2,9cm}, clip, width=1.00\textwidth]{figures/Theory_Diff_Arr_Rel.pdf}
@@ -42,7 +42,7 @@ We solve this issue by having references of all |cell|s of a diff array and thei
 \end{figure}
 \footnotetext{$x$ $\in_L$ $xs$ is a short-hand notation for $x$ $\in$ $set$ $xs$}
 
-\noindent In the base case, when the number of updates is zero, we assert that |t| contains the abstract list representation and the |cell|-reference. On the other hand, if the number of updates exceeds zero, we assume that the |cell|-reference is in |t| together with an update entry. Furthermore, the index of the update needs to be in bounds of the list abstraction, and the whole relation needs to hold recursively for the reference in the update with the update reversely applied. As a short-hand notation for the diff array relation we use $t$ $\vdash$ $xs$ $\sim_n$ $a$. In the following, we mostly will not care about the exact number of updates and existentially quantify it with the definition in \autoref{fig:diff_arr_rel} and its corresponding short-hand notation $t$ $\vdash$ $xs$ $\sim$ $a$.
+\noindent In the base case, when the number of updates is zero, we assert that |t| contains the abstract list representation and the |cell| reference. On the other hand, if the number of updates exceeds zero, we assume that the |cell| reference is in |t| together with an update entry. Furthermore, the index of the update needs to be in bounds of the list abstraction, and the whole relation needs to hold recursively for the reference in the update with the update reversely applied. As a short-hand notation for the diff array relation, we use $t$ $\vdash$ $xs$ $\sim_n$ $a$. In the following, we mostly will not care about the exact number of updates and existentially quantify it with the definition in \autoref{fig:diff_arr_rel} and its corresponding short-hand notation $t$ $\vdash$ $xs$ $\sim$ $a$.
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 21,2cm 0 7,4cm}, clip, width=1.00\textwidth]{figures/Theory_Diff_Arr_Rel.pdf}
@@ -50,7 +50,7 @@ We solve this issue by having references of all |cell|s of a diff array and thei
     \label{fig:diff_arr_rel}
 \end{figure}
 
-\noindent A straight-forward property we can prove at this point is that we can add arbitrary elements to the list |t| without interfering with the relation (\autoref{fig:diff_arr_rel_cons}).
+\noindent A straightforward property we can prove at this point is that we can add arbitrary elements to the list |t| without interfering with the relation (\autoref{fig:diff_arr_rel_cons}).
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 11cm 0 18,2cm}, clip, width=1.00\textwidth]{figures/Theory_Diff_Arr_Rel.pdf}
@@ -86,7 +86,7 @@ In the next step, we fold the assertions using the separation conjunction. The i
 \end{figure}
 
 \noindent We will use these lemmas extensively to verify the diff array operations by opening and closing the master assertion using the diff array relation. \\
-Another important property of master assertions is that all |cell|-references in |t| need to be distinct (\autoref{fig:master_assn_distinct}). If that is not the case, two assertions with the same pointer would be separated, which in separation logic always results in |false|.
+Another important property of master assertions is that all |cell| references in |t| must be distinct (\autoref{fig:master_assn_distinct}). If that is not the case, two assertions with the same pointer would be separated, which in separation logic always results in |false|.
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 13,1cm 0 15,2cm}, clip, width=1.00\textwidth]{figures/Theory_Master_Assn.pdf}
@@ -113,7 +113,7 @@ In the following, we will use references to cells as diff arrays and create a ty
 \end{figure}
 
 \noindent For creating diff arrays from plain arrays and lists, we define two constructor functions (\autoref{fig:diff_arr_constructors}). The latter creates a plain array of the list and then uses the former, which simply creates an |Array|-cell and then returns a reference to it.\\
-To verify imperative implementations, we use Hoare triples as introduced in \autoref{chapter:separation-logic}. When creating a new diff array, a new master assertion, as well as a new diff array relation, are introduced in the post-condition of the Hoare triple. We have two versions of the proofs (\autoref{fig:diff_arr_constructor_proofs}), once with concrete |t|s and once existentially quantified over |t|, because later, we mostly will not care about the concrete |t|s anymore. The preconditions of the list proofs are empty, meaning that the list constructors can be called everywhere. The array proofs have an array pointer assertion as their precondition, which is naturally introduced when arrays are created.
+To verify imperative implementations, we use Hoare triples, as introduced in \autoref{chapter:separation-logic}. When creating a new diff array, a new master assertion, as well as a new diff array relation, are introduced in the postcondition of the Hoare triple. We have two versions of the proofs (\autoref{fig:diff_arr_constructor_proofs}), once with concrete |t|s and once existentially quantified over |t|, because later, we mostly will not care about the concrete |t|s anymore. The preconditions of the list proofs are empty, meaning that the list constructors can be called everywhere. The array proofs have an array pointer assertion as their precondition, which is naturally introduced when arrays are created.
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 9,6cm 0 12,2cm}, clip, width=1.00\textwidth]{figures/Theory_Diff_Arr_Constructors.pdf}
@@ -121,11 +121,11 @@ To verify imperative implementations, we use Hoare triples as introduced in \aut
     \label{fig:diff_arr_constructor_proofs}
 \end{figure}
 
-\noindent The proofs are all based on |from|\_|array|', which we prove by providing instances for the existential quantifications of the master assertion and the diff array relation. The unfolded master assertion says that the reference returned by the constructor function needs to point to an |Array| cell and that the array inside the cell needs to point to the provided list. These two requirements are directly fulfilled by the implementation of the constructor function. To also fulfill the diff array relation, we instantiate the length of the update list with zero since we have no updates yet. In its base case, the diff array relation requires the cell and its list abstraction to be in |t|, which is true because |t| is defined as the singleton list containing exactly this pair of values.
+\noindent The proofs are all based on |from|\_|array|', which we prove by providing instances for the existential quantifications of the master assertion and the diff array relation. The unfolded master assertion says that the reference returned by the constructor function needs to point to an |Array| cell and that the array inside the cell needs to point to the provided list. The implementation of the constructor function directly fulfils these two requirements. To also fulfill the diff array relation, we instantiate the length of the update list with zero since we have no updates yet. In its base case, the diff array relation requires the cell and its list abstraction to be in |t|, which is true because |t| is the singleton list containing precisely this pair of values.
 
 \subsection{Lookup}
 
-After constructing a diff array, we also want to be able to look up values in it (\autoref{fig:diff_arr_lookup}). For that, we first check if we are at a leaf node. If yes, we look the value up in the underlying array. Otherwise, we compare the index of the update we are looking at with the index of the value we want to look up. In case they equal, we can directly return the value of the update, or else we recurse on the diff array to which the update is pointing to.
+After constructing a diff array, we also want to be able to look up values in it (\autoref{fig:diff_arr_lookup}). For that, we first check if we are at a leaf node. If yes, we look the value up in the underlying array. Otherwise, we compare the index of the update we are looking at with the index of the value we want to look up. In case they equal, we can directly return the value of the update, or else we recurse on the diff array to which the update is pointing.
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 19cm 0 4,8cm}, clip, width=1.00\textwidth]{figures/Theory_Diff_Arr_Lookup.pdf}
@@ -133,7 +133,7 @@ After constructing a diff array, we also want to be able to look up values in it
     \label{fig:diff_arr_lookup}
 \end{figure}
 
-\noindent To prove the implementation correct (\autoref{fig:diff_arr_lookup_proof}), we assume a master assertion, a diff array, and that the index we want to look up is in the bounds of the array. After the function is executed, the same master assertion should hold, and the result of the function should yield the same value as the list abstraction at that index.
+\noindent To prove the implementation correct (\autoref{fig:diff_arr_lookup_proof}), we assume a master assertion, a diff array, and that the index we want to look up is in the array's bounds. After a function execution, the same master assertion should hold, and the result of the function should yield the same value as the list abstraction at that index.
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 16,6cm 0 11,2cm}, clip, width=1.00\textwidth]{figures/Theory_Diff_Arr_Lookup.pdf}
@@ -145,7 +145,7 @@ After constructing a diff array, we also want to be able to look up values in it
 
 \subsection{Update}
 
-For updating diff arrays (\autoref{fig:diff_arr_update}), we follow the heuristic of Bloss [27], that the most recent version of an array is mostly accessed. Consequentially, when updating an array without an update tree, we update the array destructively and create a new pointer to it for the most recent version. The previous version gets updated by assigning an update cell containing the previous value to it. Following the same schema, we realize an array that already has an update tree and then update the newly created array.
+For updating diff arrays (\autoref{fig:diff_arr_update}), we follow the heuristic of \cite[p.27]{Bloss1989}, that the most recent version of an array is mainly accessed. Consequentially, when updating an array without an update tree, we update destructively and create a new pointer as the most recent version. The previous version gets updated by assigning it an update cell containing the reverted update and a pointer to the new version. Following the same schema, we realize arrays, which have an update tree and then update the newly created arrays destructively.
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 10,6cm 0 10,2cm}, clip, width=1.00\textwidth]{figures/Theory_Diff_Arr_Update.pdf}
@@ -153,8 +153,8 @@ For updating diff arrays (\autoref{fig:diff_arr_update}), we follow the heuristi
     \label{fig:diff_arr_update}
 \end{figure}
 
-\noindent By realizing, we mean that we create a new array with the updates of the update tree applied. Like this, we can guarantee that accesses to the most recent versions always have a runtime of $\mathcal{O}(1)$. \\
-The utilized |realize| function (\autoref{fig:diff_arr_realize}) is implemented by recursing the update tree down to the plain array, copying it, and applying the updates of the update tree destructively to the copy.
+\noindent By realizing, we mean creating a new array with the updates of the update tree applied. Like this, we can guarantee that accesses to the most recent versions always have a runtime of $\mathcal{O}(1)$. \\
+The utilized |realize| function (\autoref{fig:diff_arr_realize}) recurses the update tree down to the plain array, copies it, and applies the updates of the update tree destructively to the copy.
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 19,8cm 0 2,4cm}, clip, width=1.00\textwidth]{figures/Theory_Diff_Arr_Update.pdf}
@@ -178,9 +178,9 @@ The utilized |realize| function (\autoref{fig:diff_arr_realize}) is implemented 
     \label{fig:diff_arr_rel_update}
 \end{figure}
 
-\noindent An additional assumption is that the |t| under which the diff array relations hold only contains distinct cells. In \autoref{section:master_assn}, we have already shown that this property can be derived from a master assertion.\\
-We can prove the lemma using a structural induction on the diff array relation. In the base case, the number of updates that the diff array contains is zero. We can now differentiate two cases: The replaced diff array is the same as the one for which the diff array relation holds or not. We know that the number of updates of the diff array in the diff array relation increases in the first case to one and stays zero in the second. We provide these as the witnesses of the existentially quantified number of updates in the conclusion. The proof automation will then prove the rest.\\
-In the induction step of the structural induction, we can unfold one step of the diff array relation. We can now show the proposition for the underlying updated array with a fixed number of updates by using the induction hypothesis. Finally, we can show the overall conclusion by witnessing the number of updates with the just fixed number incremented by one and using the definition of the diff array relation. This lemma is one of the main building blocks for proving the update operation correct.
+\noindent An additional assumption is that the |t| under which the diff array relations hold only contains distinct cells. In \autoref{section:master_assn}, we have already shown that a master assertion yields this property.\\
+We can prove the lemma using a structural induction on the diff array relation. In the base case, the number of updates that the diff array contains is zero. We can now differentiate two cases: The replaced diff array is the same as the one for which the diff array relation holds or not. We know that the number of updates of the diff array in the diff array relation increases in the first case to one and stays zero in the second. We provide these as the witnesses of the existentially quantified number of updates for the conclusion. The proof automation will then prove the rest.\\
+In the induction step of the structural induction, we can unfold one step of the diff array relation. Using the induction hypothesis, we can now show the proposition for the underlying updated array with a fixed number of updates. Finally, we can show the overall conclusion by witnessing the number of updates with the just fixed number incremented by one and using the definition of the diff array relation. This lemma is one of the main building blocks for proving the update operation correct.
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 0,7cm 0 26,2cm}, clip, width=1.00\textwidth]{figures/Theory_Diff_Arr_Update.pdf}
@@ -188,14 +188,14 @@ In the induction step of the structural induction, we can unfold one step of the
     \label{fig:diff_arr_update_proof}
 \end{figure}
 
-\noindent For that, we have the same preconditions as for the lookup operation, but the postconditions are slightly more complicated. Firstly, there is a new |t|' because the cells of the diff array are not staying the same. The master assertion still needs to hold for it, but the diff array relation now relates the diff array with the updated list. Finally, it is also important that all the diff array relations that were holding for the |t| of the precondition also hold for the new |t|'. Otherwise, we would lose the old versions of the diff array.\\
-To prove this lemma (\autoref{fig:diff_arr_update_proof}), we differentiate whether the number of updates of the diff array is zero or not. That corresponds to the case distinction on the cell in the function implementation.\\
-The easier case\footnote{Because we have already proofs for \lstinline!realize! (\autoref{fig:diff_arr_realize_proof}).} is when the number of updates is not zero, and consequently, the cell is an update cell. The diff array is realized to a new array, which we then update. Correspondingly, the proof uses our previous proof for |realize| (\autoref{fig:diff_arr_realize_proof}) and the Imperative/HOL-library proof for destructive array updates. We now know that the master assertion still holds for |t| and, additionally, that there is a new diff array that relates to the list updated at index |i| with the value |v|. As the last step, we can now construct the new |t|' by appending the new diff array to the previous |t| and using the previously shown rules for appending to master assertions (\autoref{fig:master_assn_lemmas}).\\
-For the case that there are no update entries, we first introduce the additional premise that the cells in |t| are unique using |master|\_|assn|\_|distinct| (\autoref{fig:master_assn_distinct}). Based on that, we can later apply |update|\_|diff|\_|arr|\_|rel| (\autoref{fig:diff_arr_rel_update}). Next, we can open the master assertion and run the separation logic automation. It stops at the point where we need a witness for the new |t|'. We can construct it by replacing the array cell with the array cell of the new version and an update cell, which reverts the new change to also keep the old version. Finally, we can apply |update|\_|diff|\_|arr|\_|rel| and provide zero as the number of updates for the new updated entry to conclude the proof.
+\noindent The lemma of the update operation has the same preconditions as the lookup operation, but its postconditions are slightly more complicated (\autoref{fig:diff_arr_update_proof}). Firstly, there is a new |t|' because the cells of the diff array are not staying the same. The master assertion still needs to hold for it, but the diff array relation now relates the diff array with the updated list. Finally, it is also essential that all the diff array relations that were holding for the |t| of the precondition also hold for the new |t|'. Otherwise, we would lose the old versions of the diff array.\\
+To prove this lemma, we differentiate whether the diff array's number of updates is zero. That corresponds to the case distinction on the cell in the function implementation.\\
+The easier case\footnote{Because we have already proofs for \lstinline!realize! (\autoref{fig:diff_arr_realize_proof}).} is when the number of updates is not zero, and consequently, the cell is an update cell. Here, we realize the diff array to a new array and then update it. Correspondingly, the proof uses our previous proof for |realize| (\autoref{fig:diff_arr_realize_proof}) and the Imperative/HOL-library proof for destructive array updates. We now know that the master assertion still holds for |t| and, additionally, that there is a new diff array that relates to the list updated at index |i| with the value |v|. As the last step, we can now construct the new |t|' by appending the new diff array to the previous |t| and using the previously shown rules for appending to master assertions (\autoref{fig:master_assn_lemmas}).\\
+For the case that there are no update entries, we first introduce the additional premise that the cells in |t| are unique using |master|\_|assn|\_|distinct| (\autoref{fig:master_assn_distinct}). Based on that, we can later apply |update|\_|diff|\_|arr|\_|rel| (\autoref{fig:diff_arr_rel_update}). Next, we can open the master assertion and run the separation logic automation. It stops at the point where we need a witness for the new |t|'. We can construct it by replacing the array cell with the array cell of the new version and an update cell, which reverts the new change also to keep the old version. Finally, we can apply |update|\_|diff|\_|arr|\_|rel| and provide zero as the number of updates for the new updated entry to conclude the proof.
 
 \subsection{Length}
 
-Since it can also be helpful to know the length of an array, we so implement an operation for that, too (\autoref{fig:diff_arr_length}).
+Since it can also be helpful to know the length of an array, we implement an operation for that, too (\autoref{fig:diff_arr_length}).
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 20,2cm 0 5,2cm}, clip, width=1.00\textwidth]{figures/Theory_Diff_Arr_Length.pdf}
@@ -213,10 +213,10 @@ Since it can also be helpful to know the length of an array, we so implement an 
 
 \subsection{Safe Operations}\label{section:safe_diff_arr}
 
-Before we can go on to automatically replace lists with arrays, we need to simplify one detail of the implementations of the lookup and update operations. The operations expect that the provided index is inside of the bounds of the array, and it would be cumbersome to just allow the translation of functions accounting for it.\\
-To solve this issue, we define a lookup operation that is undefined for indices out of bounds in a similar way as the standard |List|.|nth| operation (\autoref{fig:diff_arr_lookup_safe}). Like that, the program will exceptionally terminate if an index out of bounds is provided.\\
+Before we can go on to automatically replace lists with arrays, we need to simplify one detail of the implementations of the lookup and update operations. The operations expect that the provided index is inside the bounds of the array, and it would be cumbersome just to allow the translation of functions accounting for it.\\
+To solve this issue, we define a lookup operation that is undefined for indices out of bounds in a similar way as the standard |List|.|nth| operation (\autoref{fig:diff_arr_lookup_safe}). Like that, the program will exceptionally terminate on an index out of bounds.\\
 The update operation does not even need that (\autoref{fig:diff_arr_update_safe}). We simply do not update anything if the index is out of bounds.\\
-The proofs for both operations are done via separation logic proof automation utilizing our previous proofs of the according operations (\autoref{fig:diff_arr_safe_proof}).
+The proofs for both operations use separation logic proof automation with our previous proofs of the according operations (\autoref{fig:diff_arr_safe_proof}).
 
 
 \begin{figure}[htpb]

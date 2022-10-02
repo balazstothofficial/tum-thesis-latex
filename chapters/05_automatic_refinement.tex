@@ -1,6 +1,6 @@
 \chapter{Automatic Refinement}\label{chapter:automatic-refinement}
 
-As the main infrastructure to automatically refine lists to (diff) arrays, we define a predicate |hnr| $\Gamma$ |c| $\Gamma'$ |a| (short for heap-nres refinement) similar to [Lammich 17, 490] and [Lammich 19, 12] (\autoref{fig:hnr_predicate}). |hnr| relates an abstract function |a| with an imperative program |c| in the Imperative/HOL heap monad. Additionally, $\Gamma$ describes the heap precondition for |c| using separation logic assertions and $\Gamma'$ describes the heap after executing |c|, also using separation logic assertions. In our terms, |hnr| predicates can be read like: If |c| is executed on a heap that fulfills $\Gamma$ then the result of |c| is the same as the result of |a| and the heap afterwards fulfills $\Gamma'$. |hnr| is defined using a Hoare triple for garbage collected languages.
+As the central infrastructure to automatically refine lists to (diff) arrays, we define a predicate |hnr| $\Gamma$ |c| $\Gamma'$ |a| (short for heap-nres refinement; \autoref{fig:hnr_predicate}) similar to \cite[p.490]{Lammich_2017} and \cite[p.12]{Lammich_2019}. |hnr| relates an abstract function |a| with an imperative program |c| in the Imperative/HOL heap monad. Additionally, $\Gamma$ describes the heap precondition for |c| using separation logic assertions and $\Gamma'$ describes the heap after executing |c|, also using separation logic assertions. In our terms, |hnr| predicates read like this: If |c| runs on a heap that fulfills $\Gamma$, then the result of |c| is the same as the result of |a|, and the heap afterward fulfills $\Gamma'$. |hnr| is defined using a Hoare triple for garbage-collected languages.
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 24,8cm 0 2,4cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Base.pdf}
@@ -8,7 +8,7 @@ As the main infrastructure to automatically refine lists to (diff) arrays, we de
     \label{fig:hnr_predicate}
 \end{figure}
 
-\noindent |a| is defined using an option type, such that the abstract function cannot just be total but also partial. It will help us automate the translation of recursive functions [link].
+\noindent |a| is defined using an option type, such that the abstract function cannot just be total but also partial. It will help us automate the translation of recursive functions (\autoref{section:hnr_recursion}).
 Consequently, we can directly prove that |hnr| holds for failed or non-terminating functions (\autoref{fig:hnr_none}).
 
 \begin{figure}[htpb]
@@ -17,16 +17,16 @@ Consequently, we can directly prove that |hnr| holds for failed or non-terminati
     \label{fig:hnr_none}
 \end{figure}
 
-\noindent While building up the refinement infrastructure, we assume input functions that have a termination proof and are monadified in the option monad similar to [Wimmer 2018]. That means that every value and constant is assigned to a separate variable using monadic binds or lets. Recursive functions are assumed to be defined using the option monad fix point operator [link]. An automatic translation of functions into the assumed format is not implemented yet [link future work].
+\noindent While building up the refinement infrastructure, we assume input functions with a termination proof that are monadified in the option monad similar to \cite{Wimmer_2018}. That means that every value and constant is assigned to a separate variable using monadic binds or lets. Furthermore, recursive functions are assumed to use the option monad fixed-point operator \parencite[p.5]{Krauss_2010}. Unfortunately, an automatic translation of functions into the assumed format is not implemented yet (see \autoref{chapter:future_work}).
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 20,2cm 0 2,4cm}, clip, width=1.00\textwidth]{figures/Theory_Example.pdf}
-    \caption[Example for a monadified function]{Example for a monadified function}
+    \caption[Example of a monadified function]{Example of a monadified function}
     \label{fig:monadified_example}
 \end{figure}
 
 \noindent We will collect all the |hnr| rules inside a rule set called |hnr|\_|rule| and create conversions between |hnr| and Hoare triples to prove these rules (\autoref{fig:hnr_base}).\\
-Further, we will build up the |hnr| rules such that every value has an assertion. The basic assertion therefor is the identity assertion, which states that a value is refined to itself. For that, we wrap the equality operator inside a definition so that no accidental simplifications can happen.
+Further, we will build up the |hnr| rules such that every value has an assertion. The basic assertion, therefore, is the identity assertion, which states that a value refines to itself. For that, we wrap the equality operator inside a definition so that no accidental simplifications can happen.
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 17,8cm 0 6,2cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Base.pdf}
@@ -53,12 +53,12 @@ In the case that we already have an assertion for a value, we do not need to cre
     \label{fig:hnr_pass}
 \end{figure}
 
-\noindent Again, the proof is a conversion to a Hoare triple and then separation logic proof automation.
+\noindent Again, the proof consists of a conversion to a Hoare triple and separation logic proof automation.
 
 \section{Keep - Drop}\label{section:keep_drop}
 
 Since Imperative/HOL translates by default to a garbage-collected language, we need a facility to drop assertions of data structures that go out of scope. In the branches of the |if|-statement in \autoref{fig:monadified_example}, for example, the variables |c4| - |c7| are going out of scope after the branches are left, such that it would not be possible to keep assertions for them. 
-We create the definition in \autoref{fig:keep_drop} to separate the assertions we want to keep and drop in our |hnr| rules.
+Therefore, we create the definition in \autoref{fig:keep_drop} to separate the assertions we want to keep and drop in our |hnr| rules.
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 26,2cm 0 2,4cm}, clip, width=1.00\textwidth]{figures/Theory_Keep_Drop.pdf}
@@ -76,7 +76,7 @@ We create the definition in \autoref{fig:keep_drop} to separate the assertions w
 
 \noindent After that, there are three different rules (\autoref{fig:keep_drop_rules}) that we try to apply to resolve the goal:\\
 1. We try to split up the assertion as far as possible using the separation conjunction.\\
-2. If we cannot split up the assertion anymore, we try to keep it by replacing its drop part with the empty assertion. Note that we do not use $\Gamma$ $\Longrightarrow_A$ |emp *| $\Gamma'$ here to allow more sophisticated matching methods than simple entailment. For example, for matching master assertions, we want to allow different orders of elements inside it.\\
+2. If we cannot split up the assertion anymore, we try to keep it by replacing its drop part with the empty assertion. Note that we do not just use $\Gamma$ $\Longrightarrow_A$ |emp *| $\Gamma'$ to allow more sophisticated matching methods than simple entailment. For example, for matching master assertions, we want to allow different orders of elements inside it.\\
 3. If keeping an assertion does not work, we drop it by replacing its keep part with the empty assertion and putting the whole assertion into the drop part.\\
 We can use an Eisbach method (\autoref{fig:keep_drop_methods}) to put these three rules together as described. Further, we put the initialization rule in front of it and execute the step as often as possible to resolve keep-drop statements automatically.
 
@@ -112,7 +112,7 @@ For example, after resolving a keep-drop clause, the assertions might not be nor
 
 \section{Merge}
 
-After an |if|- or |case|-statement, every branch has its own assertion, which we need to merge into one to continue with the function refinement. As for keep-drop and normalization before, we introduce a definition again (\autoref{fig:merge}).
+After an |if|- or |case|-statement, every branch has its own assertion, which we need to merge into one to continue with the function refinement. As for keep-drop and normalization, we introduce a definition again (\autoref{fig:merge}).
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 26,2cm 0 2,4cm}, clip, width=1.00\textwidth]{figures/Theory_Merge.pdf}
@@ -135,7 +135,7 @@ In the following, we define some general |hnr| conversion rules of language stat
 
 \subsection{Tuple}
 
-When reaching the creation of a tuple, we can translate it into the binding of two already translated programs, which we then combine into a tuple. As a result, we have two |hnr| clauses in the assumption. The first of these has the same precondition as the conclusion. The second takes the postcondition of the first as its precondition since they run one after the other, and the second can depend on the result of the first one. The postcondition of the second clause is then consequently the postcondition of the conclusion, which can depend on the results of both clauses. To satisfy these dependencies in the conclusion, we deconstruct the tuple using the selectors for its first and second elements. \\
+When reaching the creation of a tuple, we can translate it into the binding of two already translated programs, which we then combine into a tuple. As a result, we have two |hnr| clauses in the assumption. The first of these has the same precondition as the conclusion. The second takes the postcondition of the first as its precondition since they run one after the other, and the second can depend on the result of the first one. The postcondition of the second clause is then consequently the postcondition of the conclusion, which can depend on the results of both clauses. To satisfy these dependencies of the conclusion, we deconstruct the tuple using the selectors for its first and second elements. \\
 The proof of this rule is a conversion of the |hnr|s to Hoare triples and separation logic proof automation.
 
 \begin{figure}[htpb]
@@ -168,7 +168,7 @@ The proof of the rule consists of unfolding the merge definition, destructuring 
 
 \subsection{Case}
 
-We defined rules for pattern matching on tuples, the sum type of the HOL library, natural numbers, and lists. They are very similar, such that we just describe them generally. In the future, we will evaluate if a general version of these rules is possible. Also, we do not yet support the conversion of case distinctions on refined types and types that contain refined types [link future work].\\
+We defined rules for pattern matching on tuples, the sum type of the HOL library, natural numbers, and lists. They are very similar, such that we just describe them generally. In the future, we will evaluate if a general version of these rules is possible. Also, we do not yet support the conversion of case distinctions on refined types and types that contain refined types (\autoref{chapter:future_work}).\\
 A case rule assumes the conversion of all its branches. Further, it associates keep-drop and normalization clauses with the |hnr| assumptions, such that the bound internal values of the destructured constructors, which the branches can depend on, are dropped again. Using these conversions, we can build up the case statement in the imperative program again. Therefore, the value that is pattern matched needs to be identical in both programs, shown by an identity assertion in the precondition of the |hnr| rule. Due to this, we have the deficiency of not being able to convert pattern matches on refined types, which would have different assertions.
 Like in the |if| rule (\autoref{fig:hnr_if}), a last additional assumption merges the postconditions of the branches again.
 
@@ -188,7 +188,7 @@ Like in the |if| rule (\autoref{fig:hnr_if}), a last additional assumption merge
 
 \section{Fallbacks}
 
-Expressions like |let c3 = c1 < c2| in \autoref{fig:monadified_example} cannot be translated using the constant rule (\autoref{fig:hnr_const}) since the expression is not fully evaluated, and the translation cannot depend directly on its abstraction. Theoretically, it would be possible to also monadify the less function and then translate it. However, when a expression does not contain a refined value, there is a more straightforward approach.\\
+The constant rule (\autoref{fig:hnr_const}) cannot translate expressions like |let c3 = c1 < c2| in \autoref{fig:monadified_example}, because the expression is not fully evaluated, and the translation cannot depend directly on its abstraction. Theoretically, it would be possible to also monadify the less function and then translate it. However, when an expression does not contain a refined value, there is a more straightforward approach.\\
 First, we can reduce such a translation to an equality assumption of the abstract and translated value, following the precondition of the |hnr| statement. Further, we can introduce an identity assertion, like in the constant rule, but we will have to prove the equality assumption in the next step (\autoref{fig:hnr_fallback}). 
 
 \begin{figure}[htpb]
@@ -218,7 +218,7 @@ Because it would be cumbersome to formulate all the |hnr| rules with this possib
 \end{figure}
 
 \noindent It splits up the precondition into the frame and the needed assertions for proving the |hnr| statement. The frame is then passed on unchanged to the postcondition.\\
-The proof of this rule can be done by translation to Hoare triples and proof automation.\\
+The proof of this rule is a translation to Hoare triples and proof automation.\\
 To apply the rule conveniently, we create an attribute called |framed|. We will use this attribute, inter alia, with our previously defined pass rule (\autoref{fig:hnr_pass}) because it also needs to work if not just one identity assertion is in the precondition.
 The converted pass rule looks like the following:
 
@@ -229,7 +229,7 @@ The converted pass rule looks like the following:
 \noindent $\Longrightarrow$ |hnr| $\Gamma_P$ |(return xi)| $(\lambda$ |r ri. id|\_|assn r ri| $*$ |F) (Some x)|
 \end{samepage}
 
-\noindent However, how do we identify the assertions that belong to the frame and those that are needed by the next rule? Or in other words, how do we resolve the second assumption of the frame rule?
+\noindent However, how do we differentiate the assertions that belong to the frame and those that are needed by the next rule? Or in other words, how do we resolve the second assumption of the frame rule?
 We create a frame inference method for this purpose. The starting point is the assumption of a goal of the following form: |P| $\Longrightarrow_A$ |Q| $*$ |F|.\\
 We want to split up an assertion |P| into |Q|, which the next |hnr| rule needs, and a frame |F|. Therefore, we rotate through the elements in |Q| by changing associativity stepwise from left to right. For each element, we rotate similarly through |P| until we find a matching assertion, which we then remove from |P|. The assertions which remain in |P| are consequently the frame.\\
 \autoref{fig:frame_inference_example} shows an example where |P| consists of the assertions |a|, |b|, |c| and |d|, and |Q| contains |a| and |c|. By removing |a| and |c|, only |b| and |d| remain, which are the frame.
@@ -243,13 +243,13 @@ We want to split up an assertion |P| into |Q|, which the next |hnr| rule needs, 
     \label{fig:frame_inference_example}
 \end{figure}
 
-\noindent We put these steps together in a parameterized Eisbach method taking the matching strategy for assertions to also allow more sophisticated methods than simple entailment. We will use that for matching the master assertions of our diff arrays.
+\noindent We put these steps together in a parameterized Eisbach method taking the matching strategy for assertions to allow also more sophisticated methods than simple entailment reflexivity. We will use that for matching the master assertions of our diff arrays.
 
-\section{Recursion}
+\section{Recursion}\label{section:hnr_recursion}
 
-We now have almost all the parts together, which we need to translate a program in the option monad to one in the heap monad. Only recursions are missing. Since we assume recursive functions using the option monad fix-point operator, we will reach a goal of the following form:\\
+We now have almost all the parts together, which we need to translate a program in the option monad to one in the heap monad. Only recursions are missing. Since we assume recursive functions using the option monad fixed-point operator \parencite[p.5]{Krauss_2010}, we will reach a goal of the following form:\\
 |hnr (|$\Gamma$ |x xi) ?c ?|$\Gamma$' |(option.fixp|\_|fun f x)|\\
-|?c| is the imperative program we want to construct using the fix-point operator of the heap monad. For that, we create and prove the rule in \autoref{fig:hnr_recursion}.
+|?c| is the imperative program we want to construct using the fixed-point operator of the heap monad \parencite[p.8]{Krauss_2010}. For that, we create and prove the rule in \autoref{fig:hnr_recursion}.
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 22,6cm 0 2,4cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Recursion.pdf}
@@ -258,7 +258,7 @@ We now have almost all the parts together, which we need to translate a program 
 \end{figure}
 
 \noindent It states that we can construct a recursive function by assuming the |hnr| statement for the recursive call and showing that it also holds for the recursive call wrapped into the function body. Additionally, we need to assume the monotonicity of the original function and the translated function. Later on, we can show these properties automatically by using a tactic of the partial function package.\\
-The application of the recursion rule is not yet fully automated, such that one needs to manually provide the pre- and postconditions [link future work]. An example is in [], where we translate the Lomuto partitioning algorithm.
+The application of the recursion rule is not yet fully automated, such that one needs to manually provide the pre- and postconditions (\autoref{chapter:future_work}). An example is in \autoref{chapter:example}, where we translate the Lomuto partitioning algorithm.
 
 \section{General Hnr Automation}\label{section:general_hnr}
 
@@ -271,7 +271,7 @@ Having now all the parts together, we can construct the |hnr| automation. First,
 \end{figure}
 
 \noindent Next, we put the |hnr| rule, keep drop, normalize, merge, monotonicity solver, and fallback methods in this order together so that the first method that can be applied is applied (\autoref{fig:hnr_step_method}).\\
-Doing this as many times as possible completes our translation automation (\autoref{fig:hnr_method}).
+Doing this as often as possible completes our translation automation (\autoref{fig:hnr_method}).
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 19,2cm 0 6,6cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr.pdf}
@@ -285,7 +285,7 @@ Doing this as many times as possible completes our translation automation (\auto
     \label{fig:hnr_method}
 \end{figure}
 
-\section{Hnr Array}
+\section{Hnr Array}\label{section:hnr_arr}
 
 Since we do not just want to transfer programs from the option monad to the heap monad but also use the features of the heap, we will create |hnr| rules for converting lists to arrays and diff arrays (\autoref{section:hnr_diff_arr}). 
 To mark lists that should be converted to arrays, we create the definition in \autoref{fig:hnr_array_marker}.
@@ -326,6 +326,7 @@ To mark lists that should be converted to arrays, we create the definition in \a
     \includegraphics[trim={0 18cm 0 9,8cm}, clip, width=1.00\textwidth]{figures/Theory_Example.pdf}
     {
     \footnotesize
+    \setstretch{0.5}
     |Output:|\\
     |example|\_|1|\_|arr| $\equiv$ \\
     |Array|.|len xsi >>=| \\
@@ -368,9 +369,126 @@ The |hnr| rules for diff arrays are analogous to the array ones, except for the 
 
 \noindent The proofs are again done by converting the |hnr| statements to Hoare triples and then using separation logic proof automation, which relies on the Hoare triple rules from \autoref{section:diff_arr_operations}.
 
-\subsection{Set Inference}
+\subsection{Set Inference}\label{section:si}
 
 This time we cannot just use reflexivity as the strategy for matching assertions in the frame and for the keep drop method. Simple reflexivity cannot solve goals for inserting elements into the set of the master assertion because the insert operations can be in different orders. We build up a procedure for this case, which we call \textit{set inference} and pass it as the matching strategy to our previously implemented frame inference. The set inference works on rules of the form: |master|\_|assn|' |S| $\Longrightarrow_A$ |master|\_|assn|' |S|'.\\
-An example for |S| could be |{a, b, c}| and for |S|' |insert b ?F|. Then, we need to determine if all the elements we know in |S|', and therefore do not belong to the frame, are in |S|. For that, we use a similar approach as for the frame inference previously. \\
-As the first step of the set inference, we notice that for solving a goal of the described form, it is enough to solve a goal of the form |S = S|' by applying the rule [].
+An example for |S| could be |S| $=$ $\{$ |a,| |b,| |c|$\}$ and for |S|': |S|' $=$ |insert| |b| |?F|. Then, we need to determine if all the elements we know in |S|', and therefore do not belong to the frame, are in |S|. For that, we use a similar approach as for the frame inference previously. \\
+As the first step of the set inference, we notice that for solving a goal of the described form, it is enough to solve a goal of the form |S = S|' by applying the rule in \autoref{fig:si_cong}.
 
+\begin{figure}[htpb]
+    \includegraphics[trim={0 23,4cm 0 3,9cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_SI.pdf}
+    \caption[Master assertion congruence rule]{Master assertion congruence rules}
+    \label{fig:si_cong}
+\end{figure}
+
+\noindent Next, we introduce an additional empty set on the left of the equation to rotate the elements, similar to the frame inference. Then on the right-hand side, we introduce a tag as a trick to see whether all known elements are already matched. For this, we first use rule \autoref{fig:si_init} and then move the tag by applying rule \autoref{fig:si_move_tag} multiple times to a position, such that all the known elements are outside of it.
+
+\begin{figure}[htpb]
+    \includegraphics[trim={0 21cm 0 6,8cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_SI.pdf}
+    \caption[Set inference initialization]{Set inference initialization}
+    \label{fig:si_init}
+\end{figure}
+
+\begin{figure}[!htpb]
+    \includegraphics[trim={0 20,2cm 0 9cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_SI.pdf}
+    \caption[Move set inference tag]{Move set inference tag}
+    \label{fig:si_move_tag}
+\end{figure}
+
+\begin{figure}[htpb]
+    \includegraphics[trim={0 18,4cm 0 10,8cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_SI.pdf}
+    \caption[Match elements in set inference]{Match elements in set inference}
+    \label{fig:si_match}
+\end{figure}
+
+\noindent Applied to our example we would transform: \\
+$\{$|a,| |b,| |c|$\}$ $=$ |insert| |b| |?F| to $\{$|a,| |b,| |c|$\}$ $\cup$ $\{\}$ $=$ |insert| |b| $($|Si|\_|Tag| |?F|$)$.\\
+Now we take the first element on the left side and compare it to the outermost element on the right side. If they are the same, then we can match them. Otherwise, we put the element on the left into the second set and continue with the next element. We do the matching using the rule in \autoref{fig:si_match}, and for the rotation, we use \autoref{fig:si_rotate}.
+
+\begin{figure}[htpb]
+    \includegraphics[trim={0 19,2cm 0 10cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_SI.pdf}
+    \caption[Rotate element in set inference]{Rotate element in set inference}
+    \label{fig:si_rotate}
+\end{figure}
+
+\noindent When we find a match, we rotate the left side back to its initial state (\autoref{fig:si_rotate_back}). Then, we either stop when reaching the tag on the right side (\autoref{fig:si_finish}), meaning we have matched all assertions except the frame, or cancel the matching if we cannot match one of the elements. 
+
+\begin{figure}[htpb]
+    \includegraphics[trim={0 17,4cm 0 11,8cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_SI.pdf}
+    \caption[Rotate elements back for matching next element in set inference]{Rotate elements back for matching next element in set inference}
+    \label{fig:si_rotate_back}
+\end{figure}
+
+\begin{figure}[htpb]
+    \includegraphics[trim={0 16,5cm 0 12,6cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_SI.pdf}
+    \caption[Successful set inference]{Successful set inference}
+    \label{fig:si_finish}
+\end{figure}
+
+\noindent In the just-described way, we put these rules together using Eisbach methods (\autoref{fig:si_methods}).
+
+\begin{figure}[htpb]
+    \includegraphics[trim={0 9,2cm 0 13,6cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_SI.pdf}
+    \caption[Set inference methods]{Set inference methods}
+    \label{fig:si_methods}
+\end{figure}
+
+\subsection{Keep - Drop Strategy}
+
+\begin{samepage}
+In our keep drop procedure (\autoref{section:keep_drop}), we will reach goals for diff array assertions of the form: |master|\_|assn|' |S| $\Longrightarrow_A$ |master|\_|assn|' |?S|. Here, we try to keep the assertion by keeping as many elements inside the master assertion as possible. So if we have, for example:\nopagebreak
+
+
+\noindent$\bigwedge$ |a| |b| |c|. |master|\_|assn|' $(\{$ |a,| |b,| |c| $\})$ $\Longrightarrow_A$ |master|\_|assn|' $($|?S| |a| |c|$)$.
+\end{samepage}
+
+\noindent Then the version |b| of the diff array goes out of scope, but |a| and |c| stay in scope since |?S| can depend on them. This could happen when |b| was, for example, defined inside an |if|-statement, and we leave its body. Like in \autoref{section:si}, reflexivity is not enough here to solve the entailment. Rather, we need to find the biggest (non-empty) subset of |S|, that we can get according to the possible dependencies of |?S|.
+We introduce such a subset relation using the rule in  \autoref{fig:kdm_init}, which also introduces a simple identity goal. This goal will ensure later that the subset we found is not empty.
+
+\begin{figure}[htpb]
+    \includegraphics[trim={0 22,8cm 0 3,9cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_KDM.pdf}
+    \caption[Initialize keep-drop procedure for master assertions]{Initialize keep-drop procedure for master assertions}
+    \label{fig:kdm_init}
+\end{figure}
+
+\noindent To solve the subset relation, we go through all the elements in |S|, try to keep them (\autoref{fig:kdm_keep}), and if that is not possible, we drop them (\autoref{fig:kdm_drop}). For our example, this implies that we keep |a| and |c| but drop |b|.
+
+\begin{figure}[htpb]
+    \includegraphics[trim={0 20,2cm 0 7,2cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_KDM.pdf}
+    \caption[Keep element of master assertion]{Keep element of master assertion}
+    \label{fig:kdm_keep}
+\end{figure}
+
+\begin{figure}[htpb]
+    \includegraphics[trim={0 17,4cm 0 10cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_KDM.pdf}
+    \caption[Drop element of master assertion]{Drop element of master assertion}
+    \label{fig:kdm_drop}
+\end{figure}
+
+\noindent We put this strategy together in an Eisbach method (\autoref{fig:kdm_subset}), where we apply the keep and drop rules as often as possible and resolve the goal afterward using reflexivity. Then we check, using the previously introduced identity goal, that |S|' is not empty (\autoref{fig:kdm_check_not_empty}) because having an empty master assertion means that the two assertions should not have been matched in the first place. Finally, we put these steps again together using Eisbach methods (\autoref{fig:kdm_method}).
+
+\begin{figure}[htpb]
+    \includegraphics[trim={0 16,6cm 0 12,6cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_KDM.pdf}
+    \caption[Resolve subset relation]{Resolve subset relation}
+    \label{fig:kdm_subset}
+\end{figure}
+
+\begin{figure}[htpb]
+    \includegraphics[trim={0 14,2cm 0 13,6cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_KDM.pdf}
+    \caption[Check that the found subset is not empty]{Check that the found subset is not empty}
+    \label{fig:kdm_check_not_empty}
+\end{figure}
+
+\begin{figure}[htpb]
+    \includegraphics[trim={0 12,4cm 0 16cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_KDM.pdf}
+    \caption[Keep - drop procedure for master assertions]{Keep - drop procedure for master assertions}
+    \label{fig:kdm_method}
+\end{figure}
+
+\noindent By passing this strategy, the strategy of \autoref{section:si} and the diff array |hnr| rules (\autoref{fig:hnr_diff_arr_rules}) to the general |hnr| automation method (\autoref{section:general_hnr}), we complete the automatic refinement procedure of lists to diff arrays.
+
+\begin{figure}[!htpb]
+    \includegraphics[trim={0 22,2cm 0 6,6cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_Method.pdf}
+    \caption[Hnr diff array method]{Hnr diff array method}
+    \label{fig:hnr_diff_arr_method}
+\end{figure}
