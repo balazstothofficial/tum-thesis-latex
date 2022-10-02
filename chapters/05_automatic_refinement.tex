@@ -166,7 +166,7 @@ The proof of the rule consists of unfolding the merge definition, destructuring 
     \label{fig:hnr_if}
 \end{figure}
 
-\subsection{Case}
+\subsection{Case}\label{section:hnr_case}
 
 We defined rules for pattern matching on tuples, the sum type of the HOL library, natural numbers, and lists. They are very similar, such that we just describe them generally. In the future, we will evaluate if a general version of these rules is possible. Also, we do not yet support the conversion of case distinctions on refined types and types that contain refined types (\autoref{chapter:future_work}).\\
 A case rule assumes the conversion of all its branches. Further, it associates keep-drop and normalization clauses with the |hnr| assumptions, such that the bound internal values of the destructured constructors, which the branches can depend on, are dropped again. Using these conversions, we can build up the case statement in the imperative program again. Therefore, the value that is pattern matched needs to be identical in both programs, shown by an identity assertion in the precondition of the |hnr| rule. Due to this, we have the deficiency of not being able to convert pattern matches on refined types, which would have different assertions.

@@ -1,3 +1,18 @@
 \chapter{Future Work}\label{chapter:future_work}
 
-TODO
+We need to address the following points to have a fully automated and verified refinement process of functional lists to (diff) arrays:
+
+\begin{enumerate}
+
+\item The input programs are not yet automatically monadified into the format described in \autoref{chapter:automatic-refinement}. However, we could do this similar to the approach of \cite[p.2]{Wimmer_2018}.
+
+\item Currently, we need to manually provide the pre- and postconditions for translations of recursive calls. As a possible solution outline, we could require that the program's terminating branches occur before the recursive ones and generate out of their known assertions the missing pre- and postconditions.
+
+\item We cannot yet refine the creation of types containing already refined types. For example, to translate a list of lists to a diff array of diff arrays, we would need new assertions types, which consider the nesting. We would, inter alia, need to relate |cell|s of |cell|s with |cell|'s of |cell|'s similar to \autoref{fig:cell_assertion} but also accounting for the nesting. We have yet to discover if and how this could be generalized to arbitrarily nested types.
+
+\item The translation of |case|-statements are not yet generalized, so every newly defined algebraic data type needs its own hnr rule following the schema of \autoref{section:hnr_case}. A generalization will need a deeper dive into the inductive datatypes of Isabelle.
+
+\end{enumerate}
+
+\noindent Another interesting extension of the current framework would be a linearity analysis of the input programs, which determines if lists that our framework will refine are used linearly or not. Like that, we could decide if a list should be refined to a diff array or if we can avoid its overhead and refine it to a plain array. A similar approach to \cite{Bernardy_2017} is probably feasible.\\
+Also, a generalization of the framework as a facility for every kind of refinement is imaginable.
