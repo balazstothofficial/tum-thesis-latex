@@ -29,7 +29,7 @@ Consequently, we can directly prove that |hnr| holds for failed or non-terminati
 Further, we will build up the |hnr| rules such that every value has an assertion. The basic assertion, therefore, is the identity assertion, which states that a value refines to itself. For that, we wrap the equality operator inside a definition so that no accidental simplifications can happen.
 
 \begin{figure}[htpb]
-    \includegraphics[trim={0 17,8cm 0 6,2cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Base.pdf}
+    \includegraphics[trim={0 14,6cm 0 6,2cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Base.pdf}
     \caption[Basic hnr setup]{Basic hnr setup}
     \label{fig:hnr_base}
 \end{figure}
@@ -39,7 +39,7 @@ Further, we will build up the |hnr| rules such that every value has an assertion
 To cope with our self-set rule that every value gets an assertion, we introduce a |hnr| rule, which creates identity assertions for constants (\autoref{fig:hnr_const}).
 
 \begin{figure}[htpb]
-    \includegraphics[trim={0 16,8cm 0 12,2cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Base.pdf}
+    \includegraphics[trim={0 13,6cm 0 15,4cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Base.pdf}
     \caption[Constant rule]{Constant rule}
     \label{fig:hnr_const}
 \end{figure}
@@ -48,7 +48,7 @@ To cope with our self-set rule that every value gets an assertion, we introduce 
 In the case that we already have an assertion for a value, we do not need to create a new assertion but can simply pass on the existing one. \autoref{fig:hnr_pass} shows a general rule for that purpose. Later, we will specify this rule for the different assertion types, for example, the diff array master assertion. However, in the first step, we just specify it for identity assertions.
 
 \begin{figure}[htpb]
-    \includegraphics[trim={0 15cm 0 13,2cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Base.pdf}
+    \includegraphics[trim={0 11,8cm 0 16,4cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Base.pdf}
     \caption[Pass rule]{Pass rule}
     \label{fig:hnr_pass}
 \end{figure}
@@ -102,7 +102,7 @@ For example, after resolving a keep-drop clause, the assertions might not be nor
     \label{fig:norm}
 \end{figure}
 
-\noindent When reaching such a goal, we can do the normalization by first unfolding the definition. The separation logic library has a rule collection called |star|\_|aci|, which can then normalize the assertion by giving it to the simplifier. After that, as the last step, we can solve the entailment by reflexivity. 
+\noindent When reaching such a goal, we can do the normalization by first unfolding the definition. The separation logic library has a rule collection called |star|\_|aci|, which can then normalize the assertion by giving it to the simplifier. It is also possible to hand in custom normalization rules. After that, as the last step, we can solve the entailment by reflexivity. 
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 23,9cm 0 3,9cm}, clip, width=1.00\textwidth]{figures/Theory_Norm.pdf}
@@ -129,7 +129,7 @@ Because of our keep drop routine, which we expect to be executed prior to the me
     \label{fig:merge_method}
 \end{figure}
 
-\section{Hnr Rules}
+\section{Hnr Rules}\label{section:hnr_rules}
 
 In the following, we define some general |hnr| conversion rules of language statements, which we collect in the previously defined rule set called |hnr|\_|rule| (\autoref{fig:hnr_base}).
 
@@ -168,20 +168,14 @@ The proof of the rule consists of unfolding the merge definition, destructuring 
 
 \subsection{Case}\label{section:hnr_case}
 
-We defined rules for pattern matching on tuples, the sum type of the HOL library, natural numbers, and lists. They are very similar, such that we just describe them generally. In the future, we will evaluate if a general version of these rules is possible. Also, we do not yet support the conversion of case distinctions on refined types and types that contain refined types (\autoref{chapter:future_work}).\\
+We defined rules for pattern matching on the sum type of the HOL library, natural numbers, and lists. They are very similar, such that we just describe them generally. In the future, we will evaluate if a general version of these rules is possible. Also, we do not yet support the conversion of case distinctions on refined types and types that contain refined types (\autoref{chapter:future_work}).\\
 A case rule assumes the conversion of all its branches. Further, it associates keep-drop and normalization clauses with the |hnr| assumptions, such that the bound internal values of the destructured constructors, which the branches can depend on, are dropped again. Using these conversions, we can build up the case statement in the imperative program again. Therefore, the value that is pattern matched needs to be identical in both programs, shown by an identity assertion in the precondition of the |hnr| rule. Due to this, we have the deficiency of not being able to convert pattern matches on refined types, which would have different assertions.
 Like in the |if| rule (\autoref{fig:hnr_if}), a last additional assumption merges the postconditions of the branches again.
 
 \begin{figure}[htpb]
-    \includegraphics[trim={0 13,6cm 0 1,6cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Rules_Case_1.pdf}
-    \caption[Hnr case rules - 1]{Hnr case rules - 1}
-    \label{fig:hnr_case_1}
-\end{figure}
-
-\begin{figure}[htpb]
-    \includegraphics[trim={0 10,8cm 0 1,6cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Rules_Case_2.pdf}
-    \caption[Hnr case rules - 2]{Hnr case rules - 2}
-    \label{fig:hnr_case_2}
+    \includegraphics[trim={0 1,2cm 0 2,4cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Rules_Case.pdf}
+    \caption[Hnr case rules]{Hnr case rules}
+    \label{fig:hnr_case}
 \end{figure}
 
 \noindent To prove the rules, we first convert the |hnr|s to Hoare triples, unfold the merge definition, and split up the conclusion into all possible cases of the pattern match using the separation logic proof automation and its |split| option. Now, we have individual goals for each case of the pattern match. We can solve these goals by using the translation assumptions of the branches and some standard rules for disjunctions of separation logic assertions. Additionally, the associated keep drop and normalization clauses help the simplifier.
@@ -201,7 +195,7 @@ First, we can reduce such a translation to an equality assumption of the abstrac
 In the final step, we can resolve the statement with simple reflexivity. We created an Eisbach method in \autoref{fig:hnr_fallback_method} for this procedure.
 
 \begin{figure}[htpb]
-    \includegraphics[trim={0 19,4cm 0 5,2cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Fallback.pdf}
+    \includegraphics[trim={0 20,2cm 0 5,2cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Fallback.pdf}
     \caption[Hnr fallback method]{Hnr fallback method}
     \label{fig:hnr_fallback_method}
 \end{figure}
@@ -212,7 +206,7 @@ The pre- and postconditions of the |hnr| statements during translation might not
 Because it would be cumbersome to formulate all the |hnr| rules with this possible \textit{frame} in mind, we create a rule that automatically does so for us (\autoref{fig:hnr_frame_rule}).
 
 \begin{figure}[htpb]
-    \includegraphics[trim={0 26,2cm 0 0,5cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Frame.pdf}
+    \includegraphics[trim={0 25,8cm 0 1cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Frame.pdf}
     \caption[Frame rule]{Frame rule}
     \label{fig:hnr_frame_rule}
 \end{figure}
@@ -252,35 +246,50 @@ We now have almost all the parts together, which we need to translate a program 
 |?c| is the imperative program we want to construct using the fixed-point operator of the heap monad \parencite[p.8]{Krauss_2010}. For that, we create and prove the rule in \autoref{fig:hnr_recursion}.
 
 \begin{figure}[htpb]
-    \includegraphics[trim={0 22,6cm 0 2,4cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Recursion.pdf}
+    \includegraphics[trim={0 15,6cm 0 8,5cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Recursion.pdf}
     \caption[Hnr recursion rule]{Hnr recursion rule}
     \label{fig:hnr_recursion}
 \end{figure}
 
 \noindent It states that we can construct a recursive function by assuming the |hnr| statement for the recursive call and showing that it also holds for the recursive call wrapped into the function body. Additionally, we need to assume the monotonicity of the original function and the translated function. Later on, we can show these properties automatically by using a tactic of the partial function package.\\
-The application of the recursion rule is not yet fully automated, such that one needs to manually provide the pre- and postconditions (\autoref{chapter:future_work}). An example is in \autoref{chapter:example}, where we translate the Lomuto partitioning algorithm.
+The application of the recursion rule is not yet fully automated, such that one needs to manually provide the pre- and postconditions (\autoref{chapter:future_work}). But we created a helper method applying the framed version of the rule and running the frame inference afterward (\autoref{fig:hnr_recursion_method}). It also deals with unfolding the recursion parameter if it is a tuple. We need this, because the fixed-point operators just support one recursion parameter, such that we have to bundle multiple ones into a tuple. An example for applying the recursion method is in \autoref{chapter:example}, where we translate the Lomuto partitioning algorithm.
+
+\begin{figure}[htpb]
+    \includegraphics[trim={0 11,6cm 0 15,4cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Recursion.pdf}
+    \caption[Hnr recursion method]{Hnr recursion method}
+    \label{fig:hnr_recursion_method}
+\end{figure}
+
+\noindent After resolving the function body using our other |hnr| methods, we will reach the recursive calls of the function at some point. We can then solve these by simple frame inference, if the correct pre- and postconditions were provided (\autoref{fig:hnr_solve_recursion}).
+
+\begin{figure}[htpb]
+    \includegraphics[trim={0 7,8cm 0 20,8cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Recursion.pdf}
+    \caption[Solve recursive call method]{Solve recursive call method}
+    \label{fig:hnr_solve_recursion}
+\end{figure}
+
 
 \section{General Hnr Automation}\label{section:general_hnr}
 
-Having now all the parts together, we can construct the |hnr| automation. First, we create an Eisbach method for applying the |hnr| rules we created in [hnr rules] and a custom rule set, where we will provide our (diff) array rules (\autoref{fig:hnr_rule_method}). The custom rules are applied framed with the frame inference running afterward.
+Having now all the parts together, we can construct the |hnr| automation. First, we create an Eisbach method for applying the |hnr| rules we created in \autoref{section:hnr_rules} and a custom rule set, where we will provide our (diff) array rules (\autoref{fig:hnr_rule_method}). The custom rules are applied framed with the frame inference running afterward.
 
 \begin{figure}[htpb]
-    \includegraphics[trim={0 23,6cm 0 4,8cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr.pdf}
+    \includegraphics[trim={0 25cm 0 3,4cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr.pdf}
     \caption[Hnr rule method]{Hnr rule method}
     \label{fig:hnr_rule_method}
 \end{figure}
 
-\noindent Next, we put the |hnr| rule, keep drop, normalize, merge, monotonicity solver, and fallback methods in this order together so that the first method that can be applied is applied (\autoref{fig:hnr_step_method}).\\
+\noindent Next, we put the |hnr| rule, keep drop, normalize, merge, monotonicity solver, fallback, and recursive call solver methods in this order together so that the first method that can be applied is applied (\autoref{fig:hnr_step_method}).\\
 Doing this as often as possible completes our translation automation (\autoref{fig:hnr_method}).
 
 \begin{figure}[htpb]
-    \includegraphics[trim={0 19,2cm 0 6,6cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr.pdf}
+    \includegraphics[trim={0 20,2cm 0 5,3cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr.pdf}
     \caption[Hnr step method]{Hnr step method}
     \label{fig:hnr_step_method}
 \end{figure}
 
 \begin{figure}[htpb]
-    \includegraphics[trim={0 18cm 0 10,8cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr.pdf}
+    \includegraphics[trim={0 18,5cm 0 9,8cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr.pdf}
     \caption[Hnr method]{Hnr method}
     \label{fig:hnr_method}
 \end{figure}
@@ -346,7 +355,7 @@ To mark lists that should be converted to arrays, we create the definition in \a
     \label{fig:hnr_array_example}
 \end{figure}
 
-\noindent More examples are in the theory |Test|\_|Hnr|.|thy|. \\
+\noindent More examples are in the theory |Test|\_|Hnr|.|thy| \parencite{repo}. \\
 The conversion works unless the list is used in a non-linear way since arrays are ephemeral. To also cover this case, we will use diff arrays. 
 
 \section{Hnr Diff Array}\label{section:hnr_diff_arr}
@@ -413,21 +422,21 @@ Now we take the first element on the left side and compare it to the outermost e
 
 \noindent When we find a match, we rotate the left side back to its initial state (\autoref{fig:si_rotate_back}). Then, we either stop when reaching the tag on the right side (\autoref{fig:si_finish}), meaning we have matched all assertions except the frame, or cancel the matching if we cannot match one of the elements. 
 
-\begin{figure}[htpb]
+\begin{figure}[!htpb]
     \includegraphics[trim={0 17,4cm 0 11,8cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_SI.pdf}
     \caption[Rotate elements back for matching next element in set inference]{Rotate elements back for matching next element in set inference}
     \label{fig:si_rotate_back}
 \end{figure}
 
-\begin{figure}[htpb]
-    \includegraphics[trim={0 16,5cm 0 12,6cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_SI.pdf}
+\begin{figure}[!htpb]
+    \includegraphics[trim={0 16,5cm 0 12,7cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_SI.pdf}
     \caption[Successful set inference]{Successful set inference}
     \label{fig:si_finish}
 \end{figure}
 
 \noindent In the just-described way, we put these rules together using Eisbach methods (\autoref{fig:si_methods}).
 
-\begin{figure}[htpb]
+\begin{figure}[!htpb]
     \includegraphics[trim={0 9,2cm 0 13,6cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_SI.pdf}
     \caption[Set inference methods]{Set inference methods}
     \label{fig:si_methods}
@@ -467,28 +476,29 @@ We introduce such a subset relation using the rule in  \autoref{fig:kdm_init}, w
 
 \noindent We put this strategy together in an Eisbach method (\autoref{fig:kdm_subset}), where we apply the keep and drop rules as often as possible and resolve the goal afterward using reflexivity. Then we check, using the previously introduced identity goal, that |S|' is not empty (\autoref{fig:kdm_check_not_empty}) because having an empty master assertion means that the two assertions should not have been matched in the first place. Finally, we put these steps again together using Eisbach methods (\autoref{fig:kdm_method}).
 
-\begin{figure}[htpb]
+\begin{figure}[!htpb]
     \includegraphics[trim={0 16,6cm 0 12,6cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_KDM.pdf}
     \caption[Resolve subset relation]{Resolve subset relation}
     \label{fig:kdm_subset}
 \end{figure}
 
-\begin{figure}[htpb]
+\begin{figure}[!htpb]
     \includegraphics[trim={0 14,2cm 0 13,6cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_KDM.pdf}
     \caption[Check that the found subset is not empty]{Check that the found subset is not empty}
     \label{fig:kdm_check_not_empty}
 \end{figure}
 
-\begin{figure}[htpb]
+\begin{figure}[!htpb]
     \includegraphics[trim={0 12,4cm 0 16cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_KDM.pdf}
     \caption[Keep - drop procedure for master assertions]{Keep - drop procedure for master assertions}
     \label{fig:kdm_method}
 \end{figure}
 
-\noindent By passing this strategy, the strategy of \autoref{section:si} and the diff array |hnr| rules (\autoref{fig:hnr_diff_arr_rules}) to the general |hnr| automation method (\autoref{section:general_hnr}), we complete the automatic refinement procedure of lists to diff arrays.
+\noindent By passing this strategy, the strategy of \autoref{section:si}, the diff array |hnr| rules, and some normalization rules for the set of the master assertion (\autoref{fig:hnr_diff_arr_rules}) to the general |hnr| automation method (\autoref{section:general_hnr}), we complete the automatic refinement procedure of lists to diff arrays.
 
-\begin{figure}[!htpb]
-    \includegraphics[trim={0 22,2cm 0 6,6cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_Method.pdf}
+\begin{figure}[!htbp]
+    \includegraphics[trim={0 21,2cm 0 6,6cm}, clip, width=1.00\textwidth]{figures/Theory_Hnr_Diff_Arr_Method.pdf}
     \caption[Hnr diff array method]{Hnr diff array method}
     \label{fig:hnr_diff_arr_method}
+    \vspace*{19cm}
 \end{figure}

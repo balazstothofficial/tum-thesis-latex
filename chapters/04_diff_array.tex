@@ -77,7 +77,7 @@ In the next step, we fold the assertions using the separation conjunction. The i
     \label{fig:fold_assn}
 \end{figure}
 
-\noindent We show some basic properties of this fold to make the reasoning over the master assertion easier. They do not yield surprises but let us create some useful lemmas for "opening" and "closing" master assertions (\autoref{fig:master_assn_lemmas}). (With "open", we mean extracting an element from the master assertion, and with "close", adding an element to the master assertion.)
+\noindent We show some basic properties of this fold to make the reasoning over the master assertion easier. They do not yield surprises but let us create some useful lemmas for "opening" and "closing" master assertions (\autoref{fig:master_assn_lemmas}).\footnote{With "open", we mean extracting an element from the master assertion, and with "close", adding an element to the master assertion.}
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 15cm 0 5,4cm}, clip, width=1.00\textwidth]{figures/Theory_Master_Assn.pdf}
@@ -96,7 +96,7 @@ Another important property of master assertions is that all |cell| references in
 
 \section{Diff Array Operations}\label{section:diff_arr_operations}
 
-In the following, we will use references to cells as diff arrays and create a type synonym for that.
+In the following, we will use references to cells as diff arrays and create a type synonym for that (\autoref{fig:diff_arr_type_synonym}).
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 24,9cm 0 4,1cm}, clip, width=1.00\textwidth]{figures/Theory_Diff_Arr_Constructors.pdf}
@@ -162,7 +162,7 @@ The utilized |realize| function (\autoref{fig:diff_arr_realize}) recurses the up
     \label{fig:diff_arr_realize}
 \end{figure}
 
-\noindent We prove |realize| again by induction on the number of updates of the diff array (\autoref{fig:diff_arr_realize_proof}). To resolve the case distinction on the |cell| type, we can, in the base case as well as the induction step, open the master assertion. After knowing what kind of cell we are looking at currently, such that we can close the master assertion again, the separation logic automation can prove that the function preserves the master assertion and additionally creates a plain array that contains the same elements as the diff array.
+\noindent We prove |realize| again by induction on the number of updates of the diff array (\autoref{fig:diff_arr_realize_proof}). To resolve the case distinction on the |cell| type, we can, in the base case as well as the induction step, open the master assertion. After knowing what kind of cell we are looking at currently, we can close the master assertion again and the separation logic automation can prove that the function preserves the master assertion and additionally creates a plain array that contains the same elements as the diff array.
 
 \begin{figure}[htpb]
     \includegraphics[trim={0 8,2cm 0 19,6cm}, clip, width=1.00\textwidth]{figures/Theory_Diff_Arr_Update.pdf}
